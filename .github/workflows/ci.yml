@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ["8.2", "8.3", "8.4"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: intl, mbstring
+          tools: composer
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-lock
+      - name: Lint
+        run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Unit tests
+        run: php tests/run.php
+
+  craft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+      - name: Install on Craft 5 and render every Twig API
+        run: |
+          AVDEB_REF_CODE=CITEST tests/dev-site.sh avdeb-ci 8094
+          docker exec -i -u www-data avdeb-ci sh -c 'cat > /app/templates/ci.twig' <<'TWIG'
+          {% extends '_layout.twig' %}
+          {% block content %}
+          {{ avdebProducts({ url: 'https://avdeb.com/category/stickers/', layout: 'carousel', limit: 3 }) }}
+          {{ avdebButton({ href: '/category/stickers/', label: 'More stickers' }) }}
+          {{ '<p>{avdeb-products cat stickers layout="list" limit="2"}</p>'|avdeb }}
+          {% set d = craft.avdeb.data({ tag: 'stickers', limit: 2 }) %}
+          <ul id="headless">{% for c in d.cards %}<li>{{ c.href }}</li>{% endfor %}</ul>
+          {% endblock %}
+          TWIG
+          curl -sf http://localhost:8094/ci -o ci.html
+          grep -q 'avdeb avdeb--carousel' ci.html
+          grep -q 'avdeb avdeb--list' ci.html
+          grep -q 'avdeb-btn' ci.html
+          grep -q '?ref=CITEST' ci.html
+          grep -q 'rel="sponsored noopener"' ci.html
+          grep -q 'avdeb.css' ci.html
+          ! grep -q '{avdeb-' ci.html
+          docker exec -u www-data avdeb-ci php /app/craft clear-caches/avdeb-products

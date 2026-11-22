@@ -1,0 +1,223 @@
+{# Settings → Plugins → AVDEB Products #}
+{% import '_includes/forms' as forms %}
+
+{% macro override(name, overrides) -%}
+    {{- name in overrides ? 'This is set in config/avdeb.php.'|t('avdeb') : null -}}
+{%- endmacro %}
+{% from _self import override %}
+
+{% set status = plugin.embeds.status() %}
+{% set stats = status.stats %}
+
+<div class="avdeb-settings">
+    <div id="avdeb-status" class="readable" style="margin-bottom: 24px;">
+        {% if status.key and status.key.ok %}
+            <div class="pane" style="border-inline-start: 4px solid var(--green-500, #10b981); padding: 14px 18px;">
+                <strong>{{ 'Connected as {name}.'|t('avdeb', { name: status.key.owner.name }) }}</strong>
+                {{ 'Product links carry referral code'|t('avdeb') }} <code>{{ status.ref }}</code>.
+            </div>
+        {% elseif status.hasKey %}
+            <div class="pane" style="border-inline-start: 4px solid var(--red-500, #ef4444); padding: 14px 18px;">
+                {% if status.keyProblem == 'publishable' %}
+                    {{ 'This is a publishable key (avdeb_pk_…). Use the secret key (avdeb_sk_…).'|t('avdeb') }}
+                {% else %}
+                    {{ 'The secret key was not accepted: {error}'|t('avdeb', { error: status.key.error ?? 'malformed key'|t('avdeb') }) }}
+                {% endif %}
+            </div>
+        {% elseif status.ref %}
+            <div class="pane" style="border-inline-start: 4px solid var(--green-500, #10b981); padding: 14px 18px;">
+                {{ 'Product links carry referral code'|t('avdeb') }} <code>{{ status.ref }}</code>.
+            </div>
+        {% else %}
+            <div class="pane" style="border-inline-start: 4px solid var(--yellow-500, #f59e0b); padding: 14px 18px;">
+                {{ "No referral code yet: product links work, but sales aren't credited to you."|t('avdeb') }}
+            </div>
+        {% endif %}
+        <p class="light smalltext" style="margin-top: 8px;">
+            {% if stats.lastFetchAt %}
+                {{ '{n} API requests, last one {when}.'|t('avdeb', { n: stats.requests, when: stats.lastFetchAt|datetime('short') }) }}
+            {% else %}
+                {{ 'No API requests yet.'|t('avdeb') }}
+            {% endif %}
+            {% if stats.lastError %}· {{ 'Last error: {e}'|t('avdeb', { e: stats.lastError }) }}{% endif %}
+        </p>
+    </div>
+
+    <h2>{{ 'Your AVDEB account'|t('avdeb') }}</h2>
+    <p class="readable">
+        {{ 'No account yet? <a href="{apply}" target="_blank" rel="noopener">Join the AVDEB affiliate program</a> (free, 5% commission, 30-day cookie), then copy your code from the <a href="{dash}" target="_blank" rel="noopener">partner dashboard</a>.'|t('avdeb', {
+            apply: 'https://avdeb.com/affiliate/apply/',
+            dash: 'https://avdeb.com/affiliate/dashboard/developers/',
+        })|raw }}
+    </p>
+
+    {{ forms.autosuggestField({
+        label: 'Referral code'|t('avdeb'),
+        instructions: 'Added as `?ref=` to every AVDEB link. Not needed with a secret key. Empty: the `AVDEB_REF_CODE` environment variable is used.'|t('avdeb'),
+        id: 'refCode',
+        name: 'refCode',
+        value: settings.refCode,
+        suggestEnvVars: true,
+        placeholder: 'YOURCODE',
+        errors: settings.getErrors('refCode'),
+        warning: override('refCode', overrides),
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: 'Secret key (optional)'|t('avdeb'),
+        instructions: 'An environment variable such as `$AVDEB_SECRET_KEY` holding your `avdeb_sk_…` key (Partner dashboard → Embeds & API). Adds your referral code automatically and allows up to 48 products per embed. Empty: the `AVDEB_SECRET_KEY` environment variable is used.'|t('avdeb'),
+        id: 'apiKey',
+        name: 'apiKey',
+        value: settings.apiKey,
+        suggestEnvVars: true,
+        placeholder: '$AVDEB_SECRET_KEY',
+        errors: settings.getErrors('apiKey'),
+        warning: settings.keyIsLiteral() ? 'Plugin settings are saved in project config. Put the key in .env and enter $AVDEB_SECRET_KEY here instead.'|t('avdeb') : override('apiKey', overrides),
+    }) }}
+
+    <hr>
+    <h2>{{ 'Display defaults'|t('avdeb') }}</h2>
+    <p class="readable">{{ 'Every Twig call and tag can override these, e.g. `avdebProducts({ tag: "stickers", layout: "list", theme: "dark" })`.'|t('avdeb')|md(inlineOnly=true) }}</p>
+
+    <div class="flex flex-wrap" style="gap: 12px 28px; align-items: flex-start; margin-bottom: 20px;">
+        {{ forms.selectField({
+            label: 'Layout'|t('avdeb'),
+            id: 'layout',
+            name: 'layout',
+            value: settings.layout,
+            options: { grid: 'Grid'|t('avdeb'), carousel: 'Carousel'|t('avdeb'), list: 'List'|t('avdeb'), spotlight: 'Spotlight (first product featured)'|t('avdeb') },
+            warning: override('layout', overrides),
+        }) }}
+        {{ forms.textField({
+            label: 'Columns'|t('avdeb'),
+            id: 'columns',
+            name: 'columns',
+            type: 'number',
+            min: 1,
+            max: 6,
+            size: 4,
+            value: settings.columns,
+            errors: settings.getErrors('columns'),
+            warning: override('columns', overrides),
+        }) }}
+        {{ forms.selectField({
+            label: 'Card style'|t('avdeb'),
+            id: 'cardStyle',
+            name: 'cardStyle',
+            value: settings.cardStyle,
+            options: { elevated: 'Elevated (soft shadow)'|t('avdeb'), outline: 'Outline'|t('avdeb'), minimal: 'Minimal'|t('avdeb') },
+            warning: override('cardStyle', overrides),
+        }) }}
+        {{ forms.selectField({
+            label: 'Colour theme'|t('avdeb'),
+            id: 'theme',
+            name: 'theme',
+            value: settings.theme,
+            options: { site: 'Inherit from site'|t('avdeb'), light: 'Light'|t('avdeb'), dark: 'Dark'|t('avdeb'), auto: "Follow visitor's system setting"|t('avdeb') },
+            warning: override('theme', overrides),
+        }) }}
+    </div>
+
+    <div class="flex flex-wrap" style="gap: 12px 28px; align-items: flex-start; margin-bottom: 20px;">
+        {{ forms.colorField({
+            label: 'Accent colour'|t('avdeb'),
+            instructions: 'Prices, badges and buttons. Empty: AVDEB green.'|t('avdeb'),
+            id: 'accentColor',
+            name: 'accentColor',
+            value: settings.accentColor,
+            errors: settings.getErrors('accentColor'),
+            warning: override('accentColor', overrides),
+        }) }}
+        {{ forms.textField({
+            label: 'Corner radius (px)'|t('avdeb'),
+            id: 'radius',
+            name: 'radius',
+            type: 'number',
+            min: 0,
+            max: 32,
+            size: 4,
+            value: settings.radius,
+            errors: settings.getErrors('radius'),
+            warning: override('radius', overrides),
+        }) }}
+        {{ forms.selectField({
+            label: 'Image shape'|t('avdeb'),
+            id: 'imageRatio',
+            name: 'imageRatio',
+            value: settings.imageRatio,
+            options: { square: 'Square'|t('avdeb'), portrait: 'Portrait'|t('avdeb'), landscape: 'Landscape'|t('avdeb') },
+            warning: override('imageRatio', overrides),
+        }) }}
+        {{ forms.textField({
+            label: 'Button text'|t('avdeb'),
+            id: 'ctaLabel',
+            name: 'ctaLabel',
+            value: settings.ctaLabel,
+            maxlength: 40,
+            errors: settings.getErrors('ctaLabel'),
+            warning: override('ctaLabel', overrides),
+        }) }}
+    </div>
+
+    <div class="flex flex-wrap" style="gap: 12px 32px; margin-bottom: 8px;">
+        {{ forms.lightswitchField({ label: 'Show prices'|t('avdeb'), id: 'showPrice', name: 'showPrice', on: settings.showPrice }) }}
+        {{ forms.lightswitchField({ label: 'Show designer names'|t('avdeb'), id: 'showCreator', name: 'showCreator', on: settings.showCreator }) }}
+        {{ forms.lightswitchField({ label: 'Show sale and “New” badges'|t('avdeb'), id: 'showBadges', name: 'showBadges', on: settings.showBadges }) }}
+        {{ forms.lightswitchField({ label: 'Open products in a new tab'|t('avdeb'), id: 'newTab', name: 'newTab', on: settings.newTab }) }}
+    </div>
+
+    <hr>
+    <h2>{{ 'Affiliate disclosure'|t('avdeb') }}</h2>
+    {{ forms.lightswitchField({
+        label: 'Show a disclosure under embeds'|t('avdeb'),
+        instructions: 'Shown only when links carry your referral code.'|t('avdeb'),
+        id: 'showDisclosure',
+        name: 'showDisclosure',
+        on: settings.showDisclosure,
+    }) }}
+    {{ forms.textField({
+        label: 'Disclosure text'|t('avdeb'),
+        id: 'disclosureText',
+        name: 'disclosureText',
+        value: settings.disclosureText,
+        maxlength: 300,
+        errors: settings.getErrors('disclosureText'),
+    }) }}
+
+    <hr>
+    <h2>{{ 'Assets and caching'|t('avdeb') }}</h2>
+    {{ forms.lightswitchField({
+        label: 'Load the AVDEB stylesheet and carousel script'|t('avdeb'),
+        instructions: 'Turn off to style the embeds with your own CSS.'|t('avdeb'),
+        id: 'includeAssets',
+        name: 'includeAssets',
+        on: settings.includeAssets,
+    }) }}
+    {{ forms.textField({
+        label: 'Refresh products every (minutes)'|t('avdeb'),
+        instructions: 'If AVDEB can’t be reached, the last good copy is shown for up to a week.'|t('avdeb'),
+        id: 'cacheMinutes',
+        name: 'cacheMinutes',
+        type: 'number',
+        min: 5,
+        max: 2880,
+        size: 6,
+        value: settings.cacheMinutes,
+        errors: settings.getErrors('cacheMinutes'),
+        warning: override('cacheMinutes', overrides),
+    }) }}
+    <div class="field">
+        <button type="button" class="btn" data-avdeb-refresh>{{ 'Refresh products now'|t('avdeb') }}</button>
+    </div>
+</div>
+
+{% js %}
+document.querySelector("[data-avdeb-refresh]")?.addEventListener('click', (e) => {
+    const btn = e.currentTarget;
+    btn.classList.add('loading');
+    Craft.sendActionRequest('POST', 'avdeb/cache/refresh')
+        .then(({ data }) => Craft.cp.displaySuccess(data.message))
+        .catch(({ response }) => Craft.cp.displayError(response?.data?.message))
+        .finally(() => btn.classList.remove('loading'));
+});
+{% endjs %}

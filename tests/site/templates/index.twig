@@ -1,0 +1,15 @@
+{% extends '_layout.twig' %}
+{% block content %}
+    <p class="kicker">Journal</p>
+    <h1>Notes from the workbench</h1>
+    <p class="meta">Small projects, desk upgrades and gift ideas.</p>
+    <div class="grid">
+        {% for entry in craft.entries().section('blog').all() %}
+            <article class="teaser">
+                <p class="kicker">{{ entry.postDate|date('M j, Y') }}</p>
+                <h2><a href="{{ entry.url }}">{{ entry.title }}</a></h2>
+                <p>{{ entry.body|striptags|replace('/\\{avdeb-[^}]*\\}/', '')|slice(0, 140) }}…</p>
+            </article>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends '_layout.twig' %}
+{% block title %}{{ entry.title }} · {{ siteName }}{% endblock %}
+{% block content %}
+    <article class="post">
+        <p class="kicker">Gift guide</p>
+        <h1>{{ entry.title }}</h1>
+        <p class="meta">{{ entry.postDate|date('F j, Y') }} · 4 min read</p>
+        {{ entry.body|avdeb }}
+    </article>
+{% endblock %}

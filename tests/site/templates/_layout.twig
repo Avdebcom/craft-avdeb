@@ -1,0 +1,45 @@
+{# Demo site layout (tests/dev-site.sh). Not part of the plugin. #}
+<!doctype html>
+<html lang="{{ currentSite.language }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ siteName }}{% endblock %}</title>
+    <style>
+        :root { --ink: #1d2522; --muted: #5f6b66; --paper: #fbfaf7; --line: #e7e3da; --brand: #2f5d46; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font: 18px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        a { color: var(--brand); }
+        .bar { border-bottom: 1px solid var(--line); background: #fff; }
+        .bar__in { max-width: 1120px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; gap: 32px; }
+        .logo { font: 700 24px/1 Georgia, "Times New Roman", serif; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+        .logo span { color: var(--brand); }
+        .nav { display: flex; gap: 22px; font-size: 15px; }
+        .nav a { color: var(--muted); text-decoration: none; }
+        main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 80px; }
+        .post { max-width: 760px; margin: 0 auto; }
+        .kicker { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); font-weight: 600; }
+        h1 { font: 700 clamp(34px, 5vw, 50px)/1.1 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 10px 0 14px; }
+        .meta { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+        .post h2 { font: 700 28px/1.25 Georgia, serif; margin: 40px 0 10px; }
+        .post p { margin: 0 0 18px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; }
+        .teaser { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 26px; }
+        .teaser h2 { font: 700 24px/1.25 Georgia, serif; margin: 6px 0 8px; }
+        .teaser h2 a { color: var(--ink); text-decoration: none; }
+        .teaser p { color: var(--muted); margin: 0; font-size: 16px; }
+        .shop { margin-top: 64px; }
+        footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; text-align: center; padding: 28px; }
+    </style>
+</head>
+<body>
+    <header class="bar">
+        <div class="bar__in">
+            <a class="logo" href="{{ siteUrl }}">Maker<span>Notes</span></a>
+            <nav class="nav"><a href="{{ siteUrl }}">Journal</a><a href="{{ siteUrl }}">Guides</a><a href="{{ siteUrl }}">About</a></nav>
+        </div>
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+    <footer>Maker Notes · a Craft CMS demo site</footer>
+</body>
+</html>
