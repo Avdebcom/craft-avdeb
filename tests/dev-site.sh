@@ -22,8 +22,8 @@ if [ ! -f "$SITE/vendor/autoload.php" ]; then
     cd "$SITE"
     composer config platform.php 8.2.26
     composer config minimum-stability dev
-    composer config repositories.avdeb "{\"type\":\"path\",\"url\":\"$PLUGIN\",\"options\":{\"symlink\":true}}"
-    composer require "avdeb/craft-avdeb:*@dev" craftcms/ckeditor --no-interaction --ignore-platform-reqs --no-scripts
+    composer config repositories.avdeb "{\"type\":\"path\",\"url\":\"$PLUGIN\",\"options\":{\"symlink\":true,\"versions\":{\"avdeb/craft-avdeb\":\"1.0.0\"}}}"
+    composer require "avdeb/craft-avdeb:^1.0" craftcms/ckeditor --no-interaction --ignore-platform-reqs --no-scripts
   )
 fi
 

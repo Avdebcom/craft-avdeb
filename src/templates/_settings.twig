@@ -12,12 +12,12 @@
 <div class="avdeb-settings">
     <div id="avdeb-status" class="readable" style="margin-bottom: 24px;">
         {% if status.key and status.key.ok %}
-            <div class="pane" style="border-inline-start: 4px solid var(--green-500, #10b981); padding: 14px 18px;">
+            <div class="pane avdeb-status-line" style="border-inline-start: 4px solid var(--green-500, #10b981); padding: 14px 18px;">
                 <strong>{{ 'Connected as {name}.'|t('avdeb', { name: status.key.owner.name }) }}</strong>
                 {{ 'Product links carry referral code'|t('avdeb') }} <code>{{ status.ref }}</code>.
             </div>
         {% elseif status.hasKey %}
-            <div class="pane" style="border-inline-start: 4px solid var(--red-500, #ef4444); padding: 14px 18px;">
+            <div class="pane avdeb-status-line" style="border-inline-start: 4px solid var(--red-500, #ef4444); padding: 14px 18px;">
                 {% if status.keyProblem == 'publishable' %}
                     {{ 'This is a publishable key (avdeb_pk_…). Use the secret key (avdeb_sk_…).'|t('avdeb') }}
                 {% else %}
@@ -25,11 +25,11 @@
                 {% endif %}
             </div>
         {% elseif status.ref %}
-            <div class="pane" style="border-inline-start: 4px solid var(--green-500, #10b981); padding: 14px 18px;">
+            <div class="pane avdeb-status-line" style="border-inline-start: 4px solid var(--green-500, #10b981); padding: 14px 18px;">
                 {{ 'Product links carry referral code'|t('avdeb') }} <code>{{ status.ref }}</code>.
             </div>
         {% else %}
-            <div class="pane" style="border-inline-start: 4px solid var(--yellow-500, #f59e0b); padding: 14px 18px;">
+            <div class="pane avdeb-status-line" style="border-inline-start: 4px solid var(--yellow-500, #f59e0b); padding: 14px 18px;">
                 {{ "No referral code yet: product links work, but sales aren't credited to you."|t('avdeb') }}
             </div>
         {% endif %}

@@ -74,10 +74,10 @@ if (!$section) {
 
 $posts = [
     [
-        'title' => 'Small gifts that actually get used',
-        'slug' => 'small-gifts-that-actually-get-used',
-        'body' => '<p>Every December I end up buying the same thing: something small, useful and a little bit fun. Here are the ones my friends still use months later.</p><h2>Stickers for every laptop</h2><p>A good sticker pack is the easiest gift there is. It fits in a card, it costs less than a coffee, and it turns a plain laptop into something personal.</p><h2>A desk that sparks joy</h2><p>Little 3D-printed things for the desk get picked up all day: cable clips, phone stands, tiny planters.</p>',
-        'date' => '-2 days',
+        'title' => 'A tiny workbench for small spaces',
+        'slug' => 'a-tiny-workbench-for-small-spaces',
+        'body' => '<p>You don\'t need a garage to make things. My whole workshop fits on a folding table by the window.</p><h2>What lives on the table</h2><p>A cutting mat, a small 3D printer, a tray of tools and a lamp. Everything else goes in one box underneath.</p>',
+        'date' => '-4 days',
     ],
     [
         'title' => 'My five-minute desk reset',

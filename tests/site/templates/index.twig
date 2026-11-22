@@ -8,8 +8,13 @@
             <article class="teaser">
                 <p class="kicker">{{ entry.postDate|date('M j, Y') }}</p>
                 <h2><a href="{{ entry.url }}">{{ entry.title }}</a></h2>
-                <p>{{ entry.body|striptags|replace('/\\{avdeb-[^}]*\\}/', '')|slice(0, 140) }}…</p>
+                <p>{{ entry.body|replace({'</p>': '</p> ', '</h2>': '</h2> '})|striptags|replace('/\\{avdeb-[^}]*\\}/', '')|slice(0, 140)|trim }}…</p>
             </article>
         {% endfor %}
     </div>
+    {% if craft.app.plugins.isPluginEnabled('avdeb') %}
+        <section class="shop">
+            {{ avdebProducts({ tag: '3d-prints', layout: 'spotlight', limit: 4, heading: 'Fresh off the 3D printer' }) }}
+        </section>
+    {% endif %}
 {% endblock %}
